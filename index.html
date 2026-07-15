@@ -1,0 +1,208 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+.rk-app{
+  --bg:#14171c; --surface:#1c2027; --surface2:#242933; --surface3:#2c3240;
+  --border:#333a48; --text:#eceef1; --muted:#8a93a6; --muted2:#5d6577;
+  --p1:#f2a93b; --p2:#3fa796; --p3:#9186e0; --p4:#e8607a; --accent:#5b96c9;
+  font-family:'Inter',sans-serif; color:var(--text); background:var(--bg);
+  border-radius:14px; overflow:hidden; max-width:920px; margin:0 auto;
+}
+.rk-app *{box-sizing:border-box;}
+.rk-head{padding:20px 22px 16px; background:linear-gradient(180deg,#191d24,#14171c); border-bottom:1px solid var(--border);}
+.rk-head h1{font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700; margin:0 0 2px;}
+.rk-head p{margin:0; color:var(--muted); font-size:12.5px;}
+.rk-body{padding:20px 22px 26px;}
+.rk-section-title{font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; letter-spacing:1.2px; color:var(--accent); text-transform:uppercase; margin:24px 0 10px;}
+.rk-section-title:first-child{margin-top:0;}
+.rk-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+.rk-grid.g2{grid-template-columns:repeat(2,1fr);}
+@media(max-width:640px){.rk-grid{grid-template-columns:1fr 1fr;} .rk-grid.g2{grid-template-columns:1fr;}}
+.rk-field label{display:block; font-size:11px; font-weight:600; color:var(--muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px;}
+.rk-field input{
+  width:100%; background:var(--surface2); border:1px solid var(--border); color:var(--text);
+  padding:10px 11px; border-radius:8px; font-size:14px; outline:none; font-family:'JetBrains Mono',monospace; font-weight:600;
+}
+.rk-field input:focus{border-color:var(--accent);}
+.rk-standard-out{
+  background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-top:12px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.rk-standard-out .lbl{font-size:12.5px; color:var(--muted); font-weight:600;}
+.rk-standard-out .val{font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:700; color:var(--accent);}
+
+.rk-machine-card{
+  background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-bottom:10px;
+  border-left:3px solid var(--m-color);
+}
+.rk-machine-card .name{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px; margin-bottom:10px; color:var(--m-color);}
+.rk-machine-card .rk-grid{grid-template-columns:1fr 1fr;}
+
+.rk-summary{background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:16px 18px;}
+.rk-summary-row{display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border);}
+.rk-summary-row:last-child{border-bottom:none;}
+.rk-summary-row .lbl{font-size:13px; color:var(--muted); font-weight:500;}
+.rk-summary-row .val{font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:700;}
+.rk-summary-row.highlight .val{color:var(--accent); font-size:20px;}
+
+.rk-table{width:100%; border-collapse:collapse; margin-top:8px;}
+.rk-table th{
+  text-align:left; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+  color:var(--muted); padding:8px 10px; border-bottom:1px solid var(--border);
+}
+.rk-table td{padding:10px; border-bottom:1px solid var(--border); font-size:13.5px;}
+.rk-table td.num{font-family:'JetBrains Mono',monospace; text-align:right; font-weight:600;}
+.rk-table tr:last-child td{border-bottom:none;}
+.rk-table tr.total-row td{font-weight:700; background:var(--surface3);}
+.rk-dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:8px;}
+.rk-note{font-size:11.5px; color:var(--muted2); margin-top:10px; line-height:1.5;}
+</style>
+
+<div class="rk-app" id="rkApp">
+  <div class="rk-head">
+    <h1>Kalkulator Reject Berdasarkan Berat</h1>
+    <p>Konversi berat reject (kg) per mesin menjadi estimasi jumlah cup reject (pcs)</p>
+  </div>
+  <div class="rk-body">
+
+    <div class="rk-section-title">Standar Cup</div>
+    <div class="rk-grid g2">
+      <div class="rk-field"><label>Standar Berat Cup (gr)</label><input type="number" id="cupWeight" min="0" step="0.01" value="0"></div>
+      <div class="rk-field"><label>Jumlah Cup per Box (pcs)</label><input type="number" id="cupsPerBox" min="0" step="1" value="0"></div>
+    </div>
+    <div class="rk-standard-out">
+      <span class="lbl">Standar Berat / Box</span>
+      <span class="val" id="beratPerBoxOut">0 kg</span>
+    </div>
+
+    <div class="rk-section-title">Input Berat Reject per Mesin</div>
+    <div id="machineInputs"></div>
+
+    <div class="rk-section-title">Hasil Perhitungan</div>
+    <div class="rk-summary">
+      <div class="rk-summary-row">
+        <span class="lbl">Total R.Polos (semua mesin)</span>
+        <span class="val" id="totalPolosOut">0 kg</span>
+      </div>
+      <div class="rk-summary-row">
+        <span class="lbl">Total R.Print (semua mesin)</span>
+        <span class="val" id="totalPrintOut">0 kg</span>
+      </div>
+      <div class="rk-summary-row">
+        <span class="lbl">Total Reject (Polos + Print)</span>
+        <span class="val" id="totalRejectOut">0 kg</span>
+      </div>
+      <div class="rk-summary-row highlight">
+        <span class="lbl">Jumlah Box Reject (roundup)</span>
+        <span class="val" id="jumlahBoxOut">0 box</span>
+      </div>
+    </div>
+
+    <div class="rk-section-title">Rincian Jumlah Reject per Mesin (pcs)</div>
+    <table class="rk-table">
+      <thead>
+        <tr><th>Mesin</th><th style="text-align:right">R.Polos (pcs)</th><th style="text-align:right">R.Print (pcs)</th><th style="text-align:right">Total (pcs)</th></tr>
+      </thead>
+      <tbody id="resultTableBody"></tbody>
+    </table>
+
+    <div class="rk-note">
+      Jumlah pcs per mesin dihitung proporsional terhadap kontribusi berat mesin itu terhadap total berat reject,
+      dikalikan estimasi total pcs reject (Jumlah Box Reject &times; Jumlah Cup per Box).
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var MACHINES = [
+    {key:'P1', label:'Mesin 1', color:'#f2a93b'},
+    {key:'P2', label:'Mesin 2', color:'#3fa796'},
+    {key:'P3', label:'Mesin 3', color:'#9186e0'},
+    {key:'P4', label:'Mesin 4', color:'#e8607a'}
+  ];
+
+  function buildMachineInputs(){
+    var wrap = document.getElementById('machineInputs');
+    wrap.innerHTML = MACHINES.map(function(m){
+      return '<div class="rk-machine-card" style="--m-color:'+m.color+'">'+
+        '<div class="name">'+m.label+'</div>'+
+        '<div class="rk-grid">'+
+          '<div class="rk-field"><label>Berat R.Polos (kg)</label><input type="number" class="rpolos-input" data-machine="'+m.key+'" min="0" step="0.01" value="0"></div>'+
+          '<div class="rk-field"><label>Berat R.Print (kg)</label><input type="number" class="rprint-input" data-machine="'+m.key+'" min="0" step="0.01" value="0"></div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+
+  function buildResultRows(){
+    var tbody = document.getElementById('resultTableBody');
+    tbody.innerHTML = MACHINES.map(function(m){
+      return '<tr>'+
+        '<td><span class="rk-dot" style="background:'+m.color+'"></span>'+m.label+'</td>'+
+        '<td class="num" id="out-polos-'+m.key+'">0</td>'+
+        '<td class="num" id="out-print-'+m.key+'">0</td>'+
+        '<td class="num" id="out-total-'+m.key+'">0</td>'+
+      '</tr>';
+    }).join('') +
+    '<tr class="total-row"><td>TOTAL</td>'+
+      '<td class="num" id="out-polos-total">0</td>'+
+      '<td class="num" id="out-print-total">0</td>'+
+      '<td class="num" id="out-total-total">0</td>'+
+    '</tr>';
+  }
+
+  function fmt(n, decimals){
+    if(!isFinite(n)) n = 0;
+    return n.toLocaleString('id-ID', {minimumFractionDigits: decimals||0, maximumFractionDigits: decimals||2});
+  }
+
+  function recalc(){
+    var cupWeight = parseFloat(document.getElementById('cupWeight').value) || 0;   // gram
+    var cupsPerBox = parseFloat(document.getElementById('cupsPerBox').value) || 0; // pcs
+
+    var beratPerBoxKg = (cupWeight * cupsPerBox) / 1000;
+    document.getElementById('beratPerBoxOut').textContent = fmt(beratPerBoxKg, 3) + ' kg';
+
+    var polos = {}, print_ = {};
+    var totalPolos = 0, totalPrint = 0;
+    MACHINES.forEach(function(m){
+      var pInput = document.querySelector('.rpolos-input[data-machine="'+m.key+'"]');
+      var rInput = document.querySelector('.rprint-input[data-machine="'+m.key+'"]');
+      polos[m.key] = parseFloat(pInput.value) || 0;
+      print_[m.key] = parseFloat(rInput.value) || 0;
+      totalPolos += polos[m.key];
+      totalPrint += print_[m.key];
+    });
+    var totalReject = totalPolos + totalPrint;
+
+    document.getElementById('totalPolosOut').textContent = fmt(totalPolos, 2) + ' kg';
+    document.getElementById('totalPrintOut').textContent = fmt(totalPrint, 2) + ' kg';
+    document.getElementById('totalRejectOut').textContent = fmt(totalReject, 2) + ' kg';
+
+    var jumlahBoxReject = beratPerBoxKg > 0 ? Math.ceil(totalReject / beratPerBoxKg) : 0;
+    document.getElementById('jumlahBoxOut').textContent = fmt(jumlahBoxReject, 0) + ' box';
+
+    var totalPcsReject = jumlahBoxReject * cupsPerBox;
+
+    var grandPolosPcs = 0, grandPrintPcs = 0;
+    MACHINES.forEach(function(m){
+      var pcsPolos = totalReject > 0 ? (polos[m.key] / totalReject) * totalPcsReject : 0;
+      var pcsPrint = totalReject > 0 ? (print_[m.key] / totalReject) * totalPcsReject : 0;
+      document.getElementById('out-polos-'+m.key).textContent = fmt(pcsPolos, 0);
+      document.getElementById('out-print-'+m.key).textContent = fmt(pcsPrint, 0);
+      document.getElementById('out-total-'+m.key).textContent = fmt(pcsPolos+pcsPrint, 0);
+      grandPolosPcs += pcsPolos;
+      grandPrintPcs += pcsPrint;
+    });
+    document.getElementById('out-polos-total').textContent = fmt(grandPolosPcs, 0);
+    document.getElementById('out-print-total').textContent = fmt(grandPrintPcs, 0);
+    document.getElementById('out-total-total').textContent = fmt(grandPolosPcs+grandPrintPcs, 0);
+  }
+
+  buildMachineInputs();
+  buildResultRows();
+  document.getElementById('rkApp').addEventListener('input', recalc);
+  recalc();
+})();
+</script>
