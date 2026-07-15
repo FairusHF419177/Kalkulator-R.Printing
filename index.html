@@ -1,3 +1,18 @@
+<script>
+(function(){
+  if(!document.querySelector('meta[name="viewport"]')){
+    var m = document.createElement('meta');
+    m.name = 'viewport';
+    m.content = 'width=device-width, initial-scale=1, maximum-scale=1';
+    document.head.appendChild(m);
+  }
+  if(!document.querySelector('meta[charset]')){
+    var c = document.createElement('meta');
+    c.setAttribute('charset','utf-8');
+    document.head.insertBefore(c, document.head.firstChild);
+  }
+})();
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
 
@@ -7,26 +22,33 @@
   --p1:#f2a93b; --p2:#3fa796; --p3:#9186e0; --p4:#e8607a; --accent:#5b96c9;
   font-family:'Inter',sans-serif; color:var(--text); background:var(--bg);
   border-radius:14px; overflow:hidden; max-width:920px; margin:0 auto;
+  -webkit-text-size-adjust:100%; text-size-adjust:100%;
 }
 .rk-app *{box-sizing:border-box;}
+@media(max-width:480px){.rk-app{border-radius:0;}}
 .rk-head{padding:20px 22px 16px; background:linear-gradient(180deg,#191d24,#14171c); border-bottom:1px solid var(--border);}
+@media(max-width:480px){.rk-head{padding:16px 14px 14px;}}
 .rk-head h1{font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700; margin:0 0 2px;}
 .rk-head p{margin:0; color:var(--muted); font-size:12.5px;}
 .rk-body{padding:20px 22px 26px;}
+@media(max-width:480px){.rk-body{padding:16px 14px 22px;}}
 .rk-section-title{font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; letter-spacing:1.2px; color:var(--accent); text-transform:uppercase; margin:24px 0 10px;}
 .rk-section-title:first-child{margin-top:0;}
 .rk-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
 .rk-grid.g2{grid-template-columns:repeat(2,1fr);}
 @media(max-width:640px){.rk-grid{grid-template-columns:1fr 1fr;} .rk-grid.g2{grid-template-columns:1fr;}}
+@media(max-width:420px){.rk-grid{grid-template-columns:1fr;}}
 .rk-field label{display:block; font-size:11px; font-weight:600; color:var(--muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px;}
 .rk-field input{
   width:100%; background:var(--surface2); border:1px solid var(--border); color:var(--text);
   padding:10px 11px; border-radius:8px; font-size:14px; outline:none; font-family:'JetBrains Mono',monospace; font-weight:600;
+  min-height:44px;
 }
+@media(max-width:640px){.rk-field input{font-size:16px;}}
 .rk-field input:focus{border-color:var(--accent);}
 .rk-standard-out{
   background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-top:12px;
-  display:flex; align-items:center; justify-content:space-between;
+  display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
 }
 .rk-standard-out .lbl{font-size:12.5px; color:var(--muted); font-weight:600;}
 .rk-standard-out .val{font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:700; color:var(--accent);}
@@ -37,15 +59,17 @@
 }
 .rk-machine-card .name{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px; margin-bottom:10px; color:var(--m-color);}
 .rk-machine-card .rk-grid{grid-template-columns:1fr 1fr;}
+@media(max-width:360px){.rk-machine-card .rk-grid{grid-template-columns:1fr;}}
 
 .rk-summary{background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:16px 18px;}
-.rk-summary-row{display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border);}
+.rk-summary-row{display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); gap:10px; flex-wrap:wrap;}
 .rk-summary-row:last-child{border-bottom:none;}
 .rk-summary-row .lbl{font-size:13px; color:var(--muted); font-weight:500;}
 .rk-summary-row .val{font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:700;}
 .rk-summary-row.highlight .val{color:var(--accent); font-size:20px;}
 
-.rk-table{width:100%; border-collapse:collapse; margin-top:8px;}
+.rk-table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+.rk-table{width:100%; border-collapse:collapse; margin-top:8px; min-width:420px;}
 .rk-table th{
   text-align:left; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
   color:var(--muted); padding:8px 10px; border-bottom:1px solid var(--border);
@@ -99,12 +123,14 @@
     </div>
 
     <div class="rk-section-title">Rincian Jumlah Reject per Mesin (pcs)</div>
+    <div class="rk-table-scroll">
     <table class="rk-table">
       <thead>
         <tr><th>Mesin</th><th style="text-align:right">R.Polos (pcs)</th><th style="text-align:right">R.Print (pcs)</th><th style="text-align:right">Total (pcs)</th></tr>
       </thead>
       <tbody id="resultTableBody"></tbody>
     </table>
+    </div>
 
     <div class="rk-note">
       Jumlah pcs per mesin dihitung proporsional terhadap kontribusi berat mesin itu terhadap total berat reject,
